@@ -101,13 +101,18 @@ message Stream {
     optional uint64 length = 3;
     optional bool useVInts = 4 [default = true];
     optional uint32 sequence = 6;
+
+    // Offset of the stream so that we don't need dummy streams for encrypted columns
+    // if not set, then offset = previous stream + length.
+    optional uint64 offset = 8;
 }
 
+
 message KeyInfo {
-  // this covers all width of integers including byte, short, int and long
-  optional int64 intKey = 1;
-  // this covers binary key or utf8 string
-  optional bytes bytesKey = 2;
+    // this covers all width of integers including byte, short, int and long
+    optional int64 intKey = 1;
+    // this covers binary key or utf8 string
+    optional bytes bytesKey = 2;
 }
 
 message ColumnEncoding {
@@ -125,9 +130,19 @@ message ColumnEncoding {
     optional KeyInfo key = 5;
 }
 
+// metadata for encrypted columns sharing the same key
+message StripeEncryptionGroup {
+    repeated Stream streams = 1;
+    repeated ColumnEncoding encoding = 2;
+};
+
 message StripeFooter {
     repeated Stream streams = 1;
     repeated ColumnEncoding columns = 2;
+
+    // Encrypted column metadata. Number of encrypted groups should match
+    // that in the file footer
+    repeated bytes encryptedGroups = 3;
 }
 
 message Type {
@@ -159,11 +174,46 @@ message StripeInformation {
     optional uint64 footerLength = 4;
     optional uint64 numberOfRows = 5;
     optional uint64 rawDataSize = 6;
+    // Arbitrary metadata like stripe level encryption
+    // This only needs to be set once, and future stripes
+    // will use the metadata from the first one
+    repeated bytes keyMetadata = 9;
 }
 
 message UserMetadataItem {
     required string name = 1;
     required bytes value = 2;
+}
+
+message EncryptionGroup {
+    // Sub trees in the schema that encryption should be applied
+    // Sub tree is identified by its root id
+    // describe constraints
+    repeated uint32 nodes = 1;
+
+    // Arbitrary binary representing key metadata. It could be identifier
+    // of key in KMS, encrypted DEK or other form of user defined key metadata.
+    // This is optional, if it doesn't exist, the entire file is encrypted with
+    // the same key, and the key from the first stripe will be used
+    optional bytes keyMetadata = 2;
+
+    // encrypted columns stats (serialized FileStatistics)
+    optional bytes statistics = 3;
+}
+
+message Encryption {
+    enum KeyProvider {
+        UNKNOWN = 0;
+        CRYPTO_SERVICE = 1;
+    }
+
+    // Key provider. This determines what's stored in the binary keyMetadata fields
+    // and how should it be used for encryption/decryption/signing/verification
+    optional KeyProvider keyProvider = 1;
+
+    // Encryption group metadata. There is one encryption group per set of columns
+    // that share the same encryption mechanism.
+    repeated EncryptionGroup encryptionGroups = 2;
 }
 
 message Footer {
@@ -177,6 +227,7 @@ message Footer {
     optional uint32 rowIndexStride = 8;
     optional uint64 rawDataSize = 9;
     repeated uint32 stripeCacheOffsets = 10 [packed = true];
+    optional Encryption encryption = 12;
 }
 
 enum CompressionKind {

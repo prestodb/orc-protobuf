@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.airlift</groupId>
+        <groupId>com.facebook.airlift</groupId>
         <artifactId>airbase</artifactId>
-        <version>88</version>
+        <version>98</version>
     </parent>
 
     <groupId>com.facebook.presto.orc</groupId>

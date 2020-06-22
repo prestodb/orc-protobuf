@@ -185,6 +185,11 @@ message UserMetadataItem {
     required bytes value = 2;
 }
 
+// Statistics for a sub tree of the schema in depth first traveral order
+message FileStatistics {
+    repeated ColumnStatistics statistics = 1;
+}
+
 message EncryptionGroup {
     // Sub trees in the schema that encryption should be applied
     // Sub tree is identified by its root id

@@ -203,7 +203,8 @@ message EncryptionGroup {
     optional bytes keyMetadata = 2;
 
     // encrypted columns stats (serialized FileStatistics)
-    optional bytes statistics = 3;
+    // one FileStatistics object per node
+    repeated bytes statistics = 3;
 }
 
 message Encryption {

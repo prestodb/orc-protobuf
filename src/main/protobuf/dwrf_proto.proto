@@ -50,6 +50,15 @@ message BinaryStatistics {
     optional sint64 sum = 1;
 }
 
+message MapEntryStatistics {
+    optional KeyInfo key = 1;
+    optional ColumnStatistics stats = 2;
+}
+
+message MapStatistics {
+    repeated MapEntryStatistics stats = 1;
+}
+
 message ColumnStatistics {
     optional uint64 numberOfValues = 1;
     optional IntegerStatistics intStatistics = 2;
@@ -58,6 +67,11 @@ message ColumnStatistics {
     optional BucketStatistics bucketStatistics = 5;
     optional bool hasNull = 6;
     optional BinaryStatistics binaryStatistics = 7;
+    // uncompressed size
+    optional uint64 rawSize = 8;
+    // compressed size, only used for file statistics.
+    optional uint64 size = 9;
+    optional MapStatistics mapStatistics = 10;
 }
 
 message RowIndexEntry {

@@ -175,6 +175,7 @@ message Type {
         MAP = 11;
         STRUCT = 12;
         UNION = 13;
+        TIMESTAMP_MICROSECONDS = 14;
     }
     required Kind kind = 1;
     repeated uint32 subtypes = 2 [packed = true];
@@ -296,6 +297,7 @@ enum PrimitiveType {
     INTERVAL_YEAR_MONTH = 15;
     INTERVAL_DAY_TIME = 16;
     UNKNOWN = 17;
+    TIMESTAMP_MICROSECONDS = 18;
 }
 
 message TypeStorage {

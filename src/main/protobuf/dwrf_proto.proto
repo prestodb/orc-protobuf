@@ -157,6 +157,7 @@ message StripeFooter {
     // Encrypted column metadata. Number of encrypted groups should match
     // that in the file footer
     repeated bytes encryptedGroups = 3;
+    optional string writerTimezone = 4;
 }
 
 message Type {
